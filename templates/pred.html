@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicciones</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mt-4">Predicciones</h1>
+
+        <div id="prediccion_opciones" class="my-4">
+            <h2>Opciones de Predicción</h2>
+            <div class="form-group">
+                <label for="tipo_prediccion">Tipo de Predicción:</label>
+                <select class="form-control" id="tipo_prediccion">
+                    <option value="carrera">Predicción por carrera</option>
+                    <option value="ciclo">Predicción por ciclo</option>
+                </select>
+            </div>
+            <div id="carrera_container" class="form-group">
+                <label for="carrera">Carrera:</label>
+                <select class="form-control" id="carrera">
+                    {% for carrera in carreras %}
+                    <option value="{{ carrera.id }}">{{ carrera.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="anio_container" class="form-group">
+                <label for="anio_inicio">Año de inicio:</label>
+                <input type="number" class="form-control" id="anio_inicio" min="2000" max="2100" value="2020">
+                <label for="anio_fin">Año de fin:</label>
+                <input type="number" class="form-control" id="anio_fin" min="2000" max="2100" value="2025">
+            </div>
+            <div id="ciclo_container" class="form-group" style="display: none;">
+                <label for="ciclo">Ciclo:</label>
+                <select class="form-control" id="ciclo">
+                    {% for ciclo in ciclos %}
+                    <option value="{{ ciclo.id }}">{{ ciclo.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <label for="num_ciclos">Número de ciclos a predecir:</label>
+                <input type="number" class="form-control" id="num_ciclos" min="1" max="10" value="5">
+            </div>
+            <button class="btn btn-primary mt-2" onclick="realizarPrediccion()">Predecir</button>
+        </div>
+
+        <div id="prediccion_info" class="my-4" style="display: none;">
+            <h2>Información de la Predicción</h2>
+            <p><strong>Carrera:</strong> <span id="info_carrera"></span></p>
+            <p><strong>Tipo de Predicción:</strong> <span id="info_tipo_prediccion"></span></p>
+            <p><strong>Ciclo:</strong> <span id="info_ciclo"></span></p>
+            <p><strong>Período:</strong> <span id="info_periodo"></span></p>
+        </div>
+
+        <div id="resultado_grafico" class="my-4">
+            <h2>Resultado</h2>
+            <canvas id="grafico"></canvas>
+        </div>
+
+        <div id="datos_historicos" class="my-4" style="display: none;">
+            <h2>Datos Históricos</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Período</th>
+                        <th>Matriculados</th>
+                        <th>Retirados</th>
+                        <th>Reprobados</th>
+                        <th>Aprobados</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla_historicos">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let myChart = null;
+
+        document.getElementById('tipo_prediccion').addEventListener('change', function () {
+            const cicloContainer = document.getElementById('ciclo_container');
+            const anioContainer = document.getElementById('anio_container');
+
+            if (this.value === 'ciclo') {
+                cicloContainer.style.display = 'block';
+                anioContainer.style.display = 'none';
+            } else {
+                cicloContainer.style.display = 'none';
+                anioContainer.style.display = 'block';
+            }
+        });
+
+        function createChart(data, title, tipoPredicion) {
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            const ctx = document.getElementById('grafico').getContext('2d');
+
+            const labels = [...data.historicos.periodos, ...data.predicciones.periodos].map(periodo =>
+                tipoPredicion === 'ciclo' ? `Ciclo ${periodo}` : periodo
+            );
+
+            const datasets = [
+                {
+                    label: 'Estudiantes Matriculados (S)',
+                    data: [...data.historicos.matriculados, ...data.predicciones.matriculados],
+                    borderColor: 'rgb(75, 192, 192)',
+                    segment: {
+                        borderDash: ctx => ctx.p0.parsed.x >= data.historicos.periodos.length ? [6, 6] : []
+                    }
+                },
+                {
+                    label: 'Estudiantes Retirados (D)',
+                    data: [...data.historicos.retirados, ...data.predicciones.retirados],
+                    borderColor: 'rgb(255, 99, 132)',
+                    segment: {
+                        borderDash: ctx => ctx.p0.parsed.x >= data.historicos.periodos.length ? [6, 6] : []
+                    }
+                },
+                {
+                    label: 'Estudiantes Reprobados (R)',
+                    data: [...data.historicos.reprobados, ...data.predicciones.reprobados],
+                    borderColor: 'rgb(255, 205, 86)',
+                    segment: {
+                        borderDash: ctx => ctx.p0.parsed.x >= data.historicos.periodos.length ? [6, 6] : []
+                    }
+                },
+                {
+                    label: 'Estudiantes Aprobados (A)',
+                    data: [...data.historicos.aprobados, ...data.predicciones.aprobados],
+                    borderColor: 'rgb(54, 162, 235)',
+                    segment: {
+                        borderDash: ctx => ctx.p0.parsed.x >= data.historicos.periodos.length ? [6, 6] : []
+                    }
+                }
+            ];
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: title
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    xMin: data.ultimo_periodo_historico,
+                                    xMax: data.ultimo_periodo_historico,
+                                    borderColor: 'rgb(169, 169, 169)',
+                                    borderWidth: 2,
+                                    label: {
+                                        content: 'Inicio de Predicción Futura',
+                                        enabled: true
+                                    }
+                                }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'line'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: tipoPredicion === 'ciclo' ? 'Ciclo' : 'Año'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Estudiantes'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function realizarPrediccion() {
+            const tipoPredicion = document.getElementById('tipo_prediccion').value;
+            const carrera = document.getElementById('carrera').value;
+            const carreraNombre = document.getElementById('carrera').options[document.getElementById('carrera').selectedIndex].text;
+
+            let data = {
+                carrera: carrera,
+                tipo_prediccion: tipoPredicion
+            };
+
+            let ciclo, anioInicio, anioFin, numPeriodos;
+
+            if (tipoPredicion === 'ciclo') {
+                ciclo = document.getElementById('ciclo').value;
+                numPeriodos = parseInt(document.getElementById('num_ciclos').value);
+                data.ciclo = ciclo;
+                data.num_periodos_futuros = numPeriodos;
+            } else {
+                anioInicio = parseInt(document.getElementById('anio_inicio').value);
+                anioFin = parseInt(document.getElementById('anio_fin').value);
+                numPeriodos = anioFin - anioInicio + 1;
+                data.anio_inicio = anioInicio;
+                data.anio_fin = anioFin;
+                data.num_periodos_futuros = numPeriodos;
+            }
+
+            fetch('/predecir_futuro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        let titulo;
+                        if (tipoPredicion === 'ciclo') {
+                            const cicloNombre = document.getElementById('ciclo').options[document.getElementById('ciclo').selectedIndex].text;
+                            titulo = `Predicción para ${carreraNombre}, ${cicloNombre} ciclo, ${numPeriodos} ciclos futuros`;
+                        } else {
+                            titulo = `Predicción para ${carreraNombre} desde ${anioInicio} hasta ${anioFin}`;
+                        }
+                        createChart(data, titulo, tipoPredicion);
+                        mostrarInformacionPrediccion(carreraNombre, tipoPredicion, ciclo, anioInicio, anioFin, numPeriodos);
+                        mostrarDatosHistoricos(data.historicos);
+                        document.getElementById('resultado_grafico').style.display = 'block';
+                        document.getElementById('datos_historicos').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al realizar la predicción');
+                });
+        }
+
+        function mostrarInformacionPrediccion(carrera, tipoPredicion, ciclo, anioInicio, anioFin, numPeriodos) {
+            document.getElementById('info_carrera').textContent = carrera;
+            document.getElementById('info_tipo_prediccion').textContent = tipoPredicion === 'carrera' ? 'Por carrera' : 'Por ciclo';
+
+            if (tipoPredicion === 'ciclo') {
+                const cicloNombre = document.getElementById('ciclo').options[document.getElementById('ciclo').selectedIndex].text;
+                document.getElementById('info_ciclo').textContent = cicloNombre;
+                document.getElementById('info_periodo').textContent = `${numPeriodos} ciclos futuros`;
+            } else {
+                document.getElementById('info_ciclo').textContent = 'N/A';
+                document.getElementById('info_periodo').textContent = `${anioInicio} - ${anioFin}`;
+            }
+
+            document.getElementById('prediccion_info').style.display = 'block';
+        }
+
+        function mostrarDatosHistoricos(historicos) {
+            const tabla = document.getElementById('tabla_historicos');
+            tabla.innerHTML = '';
+
+            if (historicos && historicos.periodos && historicos.periodos.length > 0) {
+                for (let i = 0; i < historicos.periodos.length; i++) {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${historicos.periodos[i]}</td>
+                        <td>${historicos.matriculados[i]}</td>
+                        <td>${historicos.retirados[i]}</td>
+                        <td>${historicos.reprobados[i]}</td>
+                        <td>${historicos.aprobados[i]}</td>
+                    `;
+                    tabla.appendChild(fila);
+                }
+                document.getElementById('datos_historicos').style.display = 'block';
+            } else {
+                console.error('No hay datos históricos para mostrar');
+                document.getElementById('datos_historicos').style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const tipoPredicion = document.getElementById('tipo_prediccion');
+            tipoPredicion.dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+
+</html>

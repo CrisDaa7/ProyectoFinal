@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de Diserción</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+
+<body>
+    <div class="logo-container">
+        <img class="unl-logo" src="{{ url_for('static', filename='unl.png') }}" alt="Logo de UNL">
+    </div>
+    <div class="container">
+        <h1>Resultados de Diserción</h1>
+        <div class="results">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Carrera</th>
+                        <th>Ciclo</th>
+                        <th>Estudiantes Retirados</th>
+                        <th>Estudiantes Aprobados</th>
+                        <th>Estudiantes Reprobados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resultado in resultados %}
+                    <tr>
+                        <td>{{ resultado.carrera }}</td>
+                        <td>{{ resultado.ciclo }}</td>
+                        <td>{{ resultado.estudiantes_retirados }}</td>
+                        <td>{{ resultado.estudiantes_aprobados }}</td>
+                        <td>{{ resultado.estudiantes_reprobados }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="options">
+            <a href="{{ url_for('dashboard_usuario') }}" class="back-link">Volver al Dashboard</a>
+        </div>
+    </div>
+</body>
+
+</html>

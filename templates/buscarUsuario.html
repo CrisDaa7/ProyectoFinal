@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Cuenta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="logo-container">
+        <img class="unl-logo" src="{{ url_for('static', filename='unl.png') }}" alt="Logo de UNL">
+    </div>
+    <div class="container">
+        <h1>Cuentas</h1>
+        <div class="search-container">
+            <form method="POST" action="{{ url_for('buscar_usuario') }}">
+                <input type="text" name="termino" placeholder="Buscar usuario..." class="form-control">
+                <select name="filtro" class="form-control">
+                    <option value="carrera">Carrera</option>
+                    <option value="rol">Rol</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                <a href="/admin" class="btn btn-secondary">Atrás</a>
+            </form>
+        </div>
+        <table class="table table-striped table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Correo Electrónico</th>
+                    <th>Rol</th>
+                    <th>Carrera</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.apellido }}</td>
+                    <td>{{ usuario.telefono }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.rol }}</td>
+                    <td>{{ usuario.carrera }}</td>
+                    <td>
+                        <a href="{{ url_for('editar_usuario', id=usuario.id) }}" class="btn btn-primary">Editar</a>
+                        <form method="POST" action="{{ url_for('eliminar_usuario', id=usuario.id) }}"
+                            style="display:inline;" onsubmit="return confirmDelete(this);">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function confirmDelete(form) {
+            if (confirm("¿Seguro que deseas eliminar este usuario?")) {
+                return true; // Si el usuario confirma, se envía el formulario
+            }
+            return false; // Si el usuario cancela, no se envía el formulario
+        }
+    </script>
+</body>
+
+</html>

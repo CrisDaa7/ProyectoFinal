@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción</title>
+</head>
+
+<body>
+    <h1>Generar Predicción</h1>
+    <form method="POST">
+        <label for="carrera">Carrera:</label>
+        <select id="carrera" name="carrera">
+            {% for carrera in carreras %}
+            <option value="{{ carrera[0] }}">{{ carrera[0] }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="prediccion_tipo">Tipo de Predicción:</label>
+        <select id="prediccion_tipo" name="prediccion_tipo">
+            <option value="ciclo">Por Ciclo</option>
+            <option value="año">Por Año</option>
+        </select>
+        <br>
+        <label for="ciclo_o_anio">Ciclo o Año:</label>
+        <input type="text" id="ciclo_o_anio" name="ciclo_o_anio" required>
+        <br>
+        <label for="año_futuro">Año Futuro:</label>
+        <input type="text" id="año_futuro" name="año_futuro">
+        <br>
+        <button type="submit">Generar Gráfico</button>
+    </form>
+
+    {% if request.method == 'POST' %}
+    <div>
+        <img src="{{ url_for('prediccion') }}" alt="Gráfico de Predicción" style="width: 100%; height: auto;">
+    </div>
+    {% endif %}
+</body>
+
+</html>

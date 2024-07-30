@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Carrera</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+    <!-- Enlace al archivo CSS de Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="logo-container">
+        <img class="unl-logo" src="{{ url_for('static', filename='unl.png') }}" alt="Logo de UNL">
+    </div>
+    <div class="container">
+        <h1>Agregar Carrera</h1>
+        <form method="POST" action="{{ url_for('agregar_carrera') }}">
+            <div class="form-group">
+                <label for="nombre">Nombre de la Carrera:</label>
+                <select id="nombre" name="nombre" required>
+                    <option value="">Seleccione una carrera</option>
+                    <option value="Computacion">Computación</option>
+                    <option value="Telecomunicaciones">Telecomunicaciones</option>
+                    <option value="Minas">Minas</option>
+                    <option value="Automotriz">Automotriz</option>
+                    <option value="Electrica">Eléctrica</option>
+                    <!-- Agrega más opciones según sea necesario -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ciclo">Ciclo:</label>
+                <select id="ciclo" name="ciclo" required>
+                    <option value="">Seleccione un ciclo</option>
+                    <option value="1">Primer Ciclo</option>
+                    <option value="2">Segundo Ciclo</option>
+                    <option value="3">Tercer Ciclo</option>
+                    <option value="4">Cuarto Ciclo</option>
+                    <option value="5">Quinto Ciclo</option>
+                    <option value="6">Sexto Ciclo</option>
+                    <option value="7">Séptimo Ciclo</option>
+                    <option value="8">Octavo Ciclo</option>
+                    <option value="9">Noveno Ciclo</option>
+                    <!-- Agrega más opciones según sea necesario -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="estudiantesMatriculados">Número de Estudiantes Matriculados:</label>
+                <input type="number" id="estudiantesMatriculados" name="estudiantesMatriculados" required>
+            </div>
+            <div class="form-group">
+                <label for="estudiantesRetirados">Número de Estudiantes Retirados:</label>
+                <input type="number" id="estudiantesRetirados" name="estudiantesRetirados" required>
+            </div>
+            <div class="form-group">
+                <label for="estudiantesReprobados">Número de Estudiantes Reprobados:</label>
+                <input type="number" id="estudiantesReprobados" name="estudiantesReprobados" required>
+            </div>
+            <div class="form-group">
+                <label for="estudiantesAprobados">Número de Estudiantes Aprobados:</label>
+                <input type="number" id="estudiantesAprobados" name="estudiantesAprobados" required>
+            </div>
+            <div class="form-group">
+                <label for="anio">Año:</label>
+                <select id="anio" name="anio" required>
+                    <option value="">Seleccione un año</option>
+                    {% for anio in anios %}
+                    <option value="{{ anio }}">{{ anio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Agregar Carrera</button>
+            <!-- Botón "Atrás" -->
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Atrás</a>
+        </form>
+    </div>
+
+    <!-- Scripts de Bootstrap y jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Predicción de Deserción Estudiantil</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <h1>Predicción de Deserción Estudiantil</h1>
+    <form id="formulario">
+        <label for="carrera">Seleccione la carrera:</label>
+        <select id="carrera">
+            <option value="Telecomunicaciones">Telecomunicaciones</option>
+            <option value="Minas">Minas</option>
+            <option value="Computacion">Computación</option>
+            <option value="Electricidad">Electricidad</option>
+            <option value="Automotriz">Automotriz</option>
+        </select>
+        <br>
+        <label for="desercion">Seleccione la opción de deserción:</label>
+        <select id="desercion">
+            <option value="1">Deserción por carrera</option>
+            <option value="2">Deserción por ciclo</option>
+        </select>
+        <br>
+        <label for="prediccion">Seleccione la opción de predicción:</label>
+        <select id="prediccion">
+            <option value="1">Predicción con datos históricos</option>
+            <option value="2">Predicción a futuro</option>
+        </select>
+        <br>
+        <label for="num_cycles_futuros">Número de ciclos futuros (solo si aplica):</label>
+        <input type="number" id="num_cycles_futuros" value="0">
+        <br>
+        <button type="button" onclick="cargarDatos()">Cargar Datos</button>
+    </form>
+    
+    <canvas id="grafico"></canvas>
+    
+    <script>
+        async function cargarDatos() {
+            const carrera = document.getElementById('carrera').value;
+            const desercion = document.getElementById('desercion').value;
+            const prediccion = document.getElementById('prediccion').value;
+            const num_cycles_futuros = document.getElementById('num_cycles_futuros').value;
+
+            const response = await fetch(`/obtener_datos?carrera=${carrera}&desercion=${desercion}&prediccion=${prediccion}&num_cycles_futuros=${num_cycles_futuros}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            graficarDatos(data);
+        }
+
+        function graficarDatos(data) {
+            const ctx = document.getElementById('grafico').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: data.datasets
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="styleshe2et" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+
+<body>
+    <div class="logo-container">
+        <img class="unl-logo" src="{{ url_for('static', filename='unl.png') }}" alt="Logo de UNL">
+    </div>
+    <div class="container">
+
+        <h1>Menu de Administración</h1>
+        <div class="options">
+            <div class="option">
+                <h2>Crear Cuenta</h2>
+                <p>Agregar una nueva cuenta</p>
+                <button onclick="window.location.href='/crear_usuario'">Ir</button>
+            </div>
+            <div class="option">
+                <h2>Crear Carrera</h2>
+                <p>Agregar datos de una carrera</p>
+                <button onclick="window.location.href='/agregar_estadistica'">Ir</button>
+            </div>
+            <div class="option">
+                <h2>Cuentas</h2>
+                <p>Ver todas las cuentas</p>
+                <button onclick="window.location.href='/buscar_usuario'">Ir</button>
+            </div>
+            <div class="option">
+                <h2>Carreras</h2>
+                <p>Ver todas las carreras</p>
+                <button onclick="window.location.href='/buscar_carreras'">Ir</button>
+            </div>
+            <div class="option">
+                <h2>Importar datos</h2>
+                <p>Importar desde documento</p>
+                <button onclick="window.location.href='/importar'">Ir</button>
+            </div>
+
+        </div>
+        <div class="logout-container">
+            <a href="{{ url_for('cerrar_sesion') }}" class="logout-button">Cerrar Sesión</a>
+        </div>
+    </div>
+
+</body>
+
+</html>
